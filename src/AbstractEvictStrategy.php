@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Vectorial1024\LaravelCacheEvict;
 
 use Illuminate\Console\OutputStyle;
-use Illuminate\Support\Number;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 
@@ -13,9 +12,11 @@ abstract class AbstractEvictStrategy
 {
     protected OutputStyle $output;
 
-    public function __construct(
-        public readonly string $storeName
-    ) {
+    public string $storeName;
+
+    public function __construct(string $storeName)
+    {
+        $this->storeName = $storeName;
         // default should be null output; useful when somehow calling this outside of Artisan console context
         // does not affect actual behavior
         // todo good opportunity to refactor with property hooks in PHP 8.4
@@ -45,10 +46,10 @@ abstract class AbstractEvictStrategy
     protected function bytesToHuman(int $bytes): string
     {
         // it turns out Laravel already has a helper for this
-        // but it requires the intl extension
-        // prefer the Laravel solution; if they don't have it, then we can still use the fallback hand-crafted solution
-        if (extension_loaded('intl')) {
-            return Number::fileSize($bytes, 2, 2);
+        // but it requires the intl extension and is only available in Laravel 10+
+        // prefer the Laravel solution if available and supported; if they don't have it, then we can still use the fallback hand-crafted solution
+        if (extension_loaded('intl') && class_exists(\Illuminate\Support\Number::class)) {
+            return \Illuminate\Support\Number::fileSize($bytes, 2, 2);
         }
         // see https://stackoverflow.com/questions/15188033/human-readable-file-size
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];

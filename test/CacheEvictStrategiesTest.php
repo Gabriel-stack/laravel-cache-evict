@@ -6,7 +6,6 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Orchestra\Testbench\TestCase;
-use PHPUnit\Framework\Attributes\DataProvider;
 use SQLite3;
 use Vectorial1024\LaravelCacheEvict\CacheEvictStrategies;
 use Vectorial1024\LaravelCacheEvict\Database\DatabaseEvictStrategy;
@@ -120,7 +119,9 @@ class CacheEvictStrategiesTest extends TestCase
         Config::set('cache.stores.file2.lock_path', null);
     }
 
-    #[DataProvider('cacheCasesProvider')]
+    /**
+     * @dataProvider cacheCasesProvider
+     */
     public function testCorrectCacheEviction(string $storeName, string $cacheDriver): void
     {
         // generate two sets of key-value pair: one is expired, another is not
